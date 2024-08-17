@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { uploadFile } = require('./s3');
+const { uploadFile, listFiles } = require('./s3');
 const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3'); // Importa el cliente y el comando
 const path = require('path');
 
@@ -42,6 +42,15 @@ router.get('/archivo/:fileName', async (req, res) => {
         
         // Enviar el archivo al cliente
         result.Body.pipe(res);
+    } catch (error) {
+        res.status(500).send(error.message);
+    }
+});
+
+router.get('/archivos', async (req, res) => {
+    try {
+        const files = await listFiles();
+        res.json(files);
     } catch (error) {
         res.status(500).send(error.message);
     }
