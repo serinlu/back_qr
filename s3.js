@@ -1,5 +1,5 @@
 require('dotenv').config();
-const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, HeadObjectCommand } = require('@aws-sdk/client-s3');
+const { S3Client, PutObjectCommand, GetObjectCommand, ListObjectsV2Command, HeadObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 const fs = require('fs');
 const path = require('path');
 
@@ -60,7 +60,6 @@ async function uploadFile(file) {
     };
 
     const command = new PutObjectCommand(uploadParams);
-    console.log('Nombre del archivo subido:', fileName);
     return await client.send(command);
 }
 
@@ -96,8 +95,27 @@ async function listFiles() {
     return files;
 }
 
+async function deleteFile(fileName) {
+    const deleteParams = {
+        Bucket: AWS_BUCKET_NAME,
+        Key: fileName,
+    };
+
+    const command = new DeleteObjectCommand(deleteParams);
+
+    try {
+        await client.send(command);
+        console.log(`Archivo ${fileName} eliminado exitosamente.`);
+        return { success: true, message: `Archivo ${fileName} eliminado.` };
+    } catch (error) {
+        console.error(`Error al eliminar el archivo ${fileName}:`, error);
+        return { success: false, message: `Error al eliminar el archivo: ${error.message}` };
+    }
+}
+
 module.exports = {
     uploadFile,
     readFile,
-    listFiles
+    listFiles,
+    deleteFile
 };

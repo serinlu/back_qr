@@ -11,7 +11,6 @@ app.use(cors({
 
 app.use(fileUpload({
     useTempFiles: false,
-    //tempFileDir: './uploads'
 }))
 
 app.use(photosRoutes)

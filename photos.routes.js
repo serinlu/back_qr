@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const { uploadFile, listFiles } = require('./s3');
-const { S3Client, GetObjectCommand } = require('@aws-sdk/client-s3'); // Importa el cliente y el comando
+const { S3Client, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3'); // Importa el cliente y el comando
 const path = require('path');
 
 // Configura tu cliente de S3
@@ -19,7 +19,7 @@ router.get('/', (req, res) => res.send('hola server'));
 router.post('/upload', async (req, res) => {
     try {
         const result = await uploadFile(req.files['photo']);
-        res.send('archivo subido');
+        res.send({ message: "Archivo subido", result });
     } catch (error) {
         res.status(500).send(error.message);
     }
@@ -39,7 +39,7 @@ router.get('/archivo/:fileName', async (req, res) => {
 
         // Configurar el nombre del archivo para la descarga en el navegador
         res.attachment(fileName);
-        
+
         // Enviar el archivo al cliente
         result.Body.pipe(res);
     } catch (error) {
@@ -53,6 +53,25 @@ router.get('/archivos', async (req, res) => {
         res.json(files);
     } catch (error) {
         res.status(500).send(error.message);
+    }
+});
+
+router.delete('/archivo/:fileName', async (req, res) => {
+    try {
+        const fileName = req.params.fileName;
+
+        // Comando para eliminar el archivo
+        const command = new DeleteObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: fileName,
+        });
+
+        // Enviar el comando para eliminar el archivo
+        await client.send(command);
+
+        res.json({ message: `Archivo ${fileName} eliminado exitosamente.` });
+    } catch (error) {
+        res.status(500).send({ message: `Error al eliminar el archivo: ${error.message}` });
     }
 });
 
