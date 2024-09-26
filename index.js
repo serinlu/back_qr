@@ -9,6 +9,10 @@ app.use(cors({
     origin: 'http://localhost:5173'
 }))
 
+app.get('/', (req, res) => {
+    res.send('Hello World')
+})
+
 app.use(fileUpload({
     useTempFiles: false,
 }))
@@ -18,4 +22,3 @@ app.use(photosRoutes)
 app.use(express.static('files'))
 
 app.listen(3000)
-console.log('hola')
