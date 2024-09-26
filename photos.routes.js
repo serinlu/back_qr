@@ -1,11 +1,9 @@
 const { Router } = require('express');
 const { uploadFile, listFiles } = require('./s3');
-const { S3Client, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3'); // Importa el cliente y el comando
-const path = require('path');
+const { S3Client, GetObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
-// Configura tu cliente de S3
 const client = new S3Client({
-    region: 'us-east-2', // Cambia esto a tu región
+    region: 'us-east-2',
     credentials: {
         accessKeyId: process.env.AWS_PUBLIC_KEY,
         secretAccessKey: process.env.AWS_SECRET_KEY,
@@ -14,7 +12,7 @@ const client = new S3Client({
 
 const router = Router();
 
-router.get('/', (req, res) => res.send('hola server'));
+router.get('/', (res) => res.send('hola server'));
 
 router.post('/upload', async (req, res) => {
     try {
@@ -29,7 +27,6 @@ router.get('/archivo/:fileName', async (req, res) => {
     try {
         const fileName = req.params.fileName;
 
-        // Obtener el archivo desde S3
         const command = new GetObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: fileName
@@ -37,17 +34,15 @@ router.get('/archivo/:fileName', async (req, res) => {
 
         const result = await client.send(command);
 
-        // Configurar el nombre del archivo para la descarga en el navegador
         res.attachment(fileName);
 
-        // Enviar el archivo al cliente
         result.Body.pipe(res);
     } catch (error) {
         res.status(500).send(error.message);
     }
 });
 
-router.get('/archivos', async (req, res) => {
+router.get('/archivos', async (res) => {
     try {
         const files = await listFiles();
         res.json(files);
@@ -60,13 +55,11 @@ router.delete('/archivo/:fileName', async (req, res) => {
     try {
         const fileName = req.params.fileName;
 
-        // Comando para eliminar el archivo
         const command = new DeleteObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME,
             Key: fileName,
         });
 
-        // Enviar el comando para eliminar el archivo
         await client.send(command);
 
         res.json({ message: `Archivo ${fileName} eliminado exitosamente.` });

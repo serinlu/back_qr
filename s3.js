@@ -55,7 +55,7 @@ async function uploadFile(file) {
         Body: file.data,
         ContentType: file.mimetype,
         Metadata: {
-            'UploadDate': new Date().toISOString() // Fecha actual como metadato
+            'UploadDate': new Date().toISOString()
         }
     };
 
