@@ -12,7 +12,7 @@ const client = new S3Client({
 
 const router = Router();
 
-router.get('/', (res) => res.send('hola server'));
+//router.get('/', (res) => res.send('hola server'));
 
 router.post('/upload', async (req, res) => {
     try {
